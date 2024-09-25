@@ -1,0 +1,9 @@
+{
+  "domain": "my_custom_integration",  // Unique name for your integration
+  "name": "My Custom Integration",    // Display name for the integration
+  "version": "1.0.0",                 // Version number for tracking
+  "documentation": "https://example.com/docs",  // URL to documentation (optional but recommended)
+  "dependencies": [],                 // Other Home Assistant integrations your integration depends on
+  "requirements": ["some-python-library==1.0.0"],  // External Python libraries needed
+  "codeowners": ["@yourgithubusername"] // Your GitHub username for tracking code ownership
+}
