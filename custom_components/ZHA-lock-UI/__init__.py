@@ -2,7 +2,7 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import discovery
-from homeassistant.helpers.entity_registry import async_get_registry
+from homeassistant.helpers.entity_registry import async_get
 from homeassistant.helpers.service import async_register_admin_service
 from .const import DOMAIN, DEFAULT_SLOT_COUNT, PLATFORMS
 from .automations import create_scripts, remove_scripts
