@@ -2,83 +2,80 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
+async def create_input_text(hass, entity_id, name, min_value=0, max_value=100):
+    """Dynamically create an input_text entity."""
+    if not hass.states.get(entity_id):
+        _LOGGER.debug(f"Creating input_text {entity_id}")
+        await hass.services.async_call(
+            "input_text",
+            "create",
+            {
+                "name": name,
+                "entity_id": entity_id,
+                "min": min_value,
+                "max": max_value,
+                "pattern": ".*"  # You can adjust this pattern based on your needs
+            },
+            blocking=True
+        )
+
+async def create_input_boolean(hass, entity_id, name):
+    """Dynamically create an input_boolean entity."""
+    if not hass.states.get(entity_id):
+        _LOGGER.debug(f"Creating input_boolean {entity_id}")
+        await hass.services.async_call(
+            "input_boolean",
+            "create",
+            {
+                "name": name,
+                "entity_id": entity_id,
+            },
+            blocking=True
+        )
+
 async def create_helpers(hass, domain, slot_count):
-    """Create the required input_text, input_boolean, and input_button helpers."""
+    """Dynamically create the required input_text and input_boolean helpers."""
     for slot in range(1, slot_count + 1):
         user_input_text = f"input_text.{domain}_user_{slot}"
         code_input_text = f"input_text.{domain}_code_{slot}"
         code_status_boolean = f"input_boolean.{domain}_code_status_{slot}"
-        code_update_button = f"input_button.{domain}_code_update_{slot}"
 
-        _LOGGER.info(f"Creating helpers for slot {slot}: {user_input_text}, {code_input_text}, {code_status_boolean}, {code_update_button}")
+        _LOGGER.info(f"Creating helpers for slot {slot}: {user_input_text}, {code_input_text}, {code_status_boolean}")
 
-        # Create input_text for the user name
-        if not hass.states.get(user_input_text):
-            await hass.services.async_call(
-                "input_text",
-                "set_value",
-                {
-                    "entity_id": user_input_text,
-                    "name": f"User {slot}",
-                    "icon": "mdi:account",
-                },
-                blocking=True
-            )
+        # Dynamically create input_text for the user name
+        await create_input_text(hass, user_input_text, f"User {slot}")
 
-        # Create input_text for the code
-        if not hass.states.get(code_input_text):
-            await hass.services.async_call(
-                "input_text",
-                "set_value",
-                {
-                    "entity_id": code_input_text,
-                    "name": f"Code {slot}",
-                    "min": 0,
-                    "max": 999999,
-                    "pattern": r"\d*",
-                },
-                blocking=True
-            )
+        # Dynamically create input_text for the code
+        await create_input_text(hass, code_input_text, f"Code {slot}", min_value=0, max_value=6)
 
-        # Create input_boolean for enabling/disabling the code slot
-        if not hass.states.get(code_status_boolean):
-            await hass.services.async_call(
-                "input_boolean",
-                "turn_on",
-                {
-                    "entity_id": code_status_boolean,
-                    "name": f"Code Status {slot}",
-                    "icon": "mdi:lock",
-                },
-                blocking=True
-            )
-
-        # Create input_button for updating the code
-        if not hass.states.get(code_update_button):
-            await hass.services.async_call(
-                "input_button",
-                "set",
-                {
-                    "entity_id": code_update_button,
-                    "name": f"Update Code {slot}",
-                    "icon": "mdi:upload",
-                },
-                blocking=True
-            )
+        # Dynamically create input_boolean for enabling/disabling the code slot
+        await create_input_boolean(hass, code_status_boolean, f"Code Status {slot}")
 
 async def remove_helpers(hass, domain, slot_count):
     """Remove the dynamically created helpers."""
-    entity_registry = hass.helpers.entity_registry.async_get(hass)
-
     for slot in range(1, slot_count + 1):
         user_input_text = f"input_text.{domain}_user_{slot}"
         code_input_text = f"input_text.{domain}_code_{slot}"
         code_status_boolean = f"input_boolean.{domain}_code_status_{slot}"
-        code_update_button = f"input_button.{domain}_code_update_{slot}"
 
-        _LOGGER.info(f"Removing helpers for slot {slot}: {user_input_text}, {code_input_text}, {code_status_boolean}, {code_update_button}")
+        _LOGGER.info(f"Removing helpers for slot {slot}: {user_input_text}, {code_input_text}, {code_status_boolean}")
 
-        entity_registry.async_remove(user_input_text)
-        entity_registry.async_remove(code_input_text)
-        entity_registry.async_remove(code_status_boolean)
-        entity_registry.async_remove(code_update_button)
+        # There is no delete service, but we can reload them to remove
+        if hass.states.get(user_input_text):
+            await hass.services.async_call(
+                "input_text",
+                "reload",
+                blocking=True
+            )
+        if hass.states.get(code_input_text):
+            await hass.services.async_call(
+                "input_text",
+                "reload",
+                blocking=True
+            )
+        if hass.states.get(code_status_boolean):
+            await hass.services.async_call(
+                "input_boolean",
+                "reload",
+                blocking=True
+            )
