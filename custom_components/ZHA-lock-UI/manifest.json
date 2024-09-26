@@ -3,6 +3,6 @@
   "name": "ZHA Lock Manager",
   "version": "1.0.0",
   "dependencies": ["zha"],
-  "requirements": [],  # Add any external Python dependencies here
+  "requirements": [],  
   "codeowners": ["@firecefish1"]
 }
