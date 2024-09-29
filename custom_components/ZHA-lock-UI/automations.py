@@ -2,124 +2,163 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
-async def create_automations(hass, domain: str, slot_count: int, lock_entity_id: str):
-    """Dynamically create automations for toggling lock code status based on input_boolean."""
-    automation_service = "automation"
+async def create_lock_code_automations(hass, slot_count, lock_name, lock_device_id):
+    """Dynamically create automations for managing lock codes."""
+
+    # Gather triggers for each slot for each automation
+    clear_triggers = []
+    update_triggers = []
+    toggle_triggers = []
 
     for slot in range(1, slot_count + 1):
-        # Automation for toggling lock code status
-        status_automation = {
-            "alias": f"Zigbee Lock: Toggle Code Status Slot {slot}",
-            "trigger": [
-                {
-                    "platform": "state",
-                    "entity_id": f"input_boolean.{domain}_code_status_{slot}",
+        # Add triggers for "Clear Lock Code"
+        clear_triggers.append({
+            "platform": "state",
+            "entity_id": f"input_button.zha_lock_code_clear_{slot}",
+        })
+
+        # Add triggers for "Update Lock Code"
+        update_triggers.append({
+            "platform": "state",
+            "entity_id": f"input_button.zha_lock_code_update_{slot}",
+        })
+
+        # Add triggers for "Toggle Code Status"
+        toggle_triggers.append({
+            "platform": "state",
+            "entity_id": f"input_boolean.zha_lock_code_status_{slot}",
+        })
+
+    # Create "Clear Lock Code" automation for all slots
+    clear_automation = {
+        "alias": "Zigbee Lock: Clear Lock Code",
+        "trigger": clear_triggers,
+        "action": [
+            # Step 1: Clear the lock user code
+            {
+                "service": "zha.clear_lock_user_code",
+                "data_template": {
+                    "code_slot": "{{ trigger.entity_id.split('_')[-1] | int }}"
+                },
+                "target": {
+                    "entity_id": f"lock.{lock_name}"
                 }
-            ],
-            "action": [
-                {
-                    "choose": [
-                        {
-                            "conditions": [
-                                {
-                                    "condition": "template",
-                                    "value_template": "{{ trigger.to_state.state == 'on' }}"
-                                }
-                            ],
-                            "sequence": [
-                                {
-                                    "service": "zha.enable_lock_user_code",
-                                    "data": {
-                                        "code_slot": slot
-                                    },
-                                    "target": {
-                                        "entity_id": lock_entity_id
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            "conditions": [
-                                {
-                                    "condition": "template",
-                                    "value_template": "{{ trigger.to_state.state == 'off' }}"
-                                }
-                            ],
-                            "sequence": [
-                                {
-                                    "service": "zha.disable_lock_user_code",
-                                    "data": {
-                                        "code_slot": slot
-                                    },
-                                    "target": {
-                                        "entity_id": lock_entity_id
-                                    }
-                                }
-                            ]
-                        }
-                    ]
+            },
+            # Step 2: Clear the input_text for Lock User
+            {
+                "service": "input_text.set_value",
+                "data": {
+                    "value": ""
+                },
+                "target": {
+                    "entity_id": "{{ 'input_text.zha_lock_user_' + trigger.entity_id.split('_')[-1] }}"
                 }
-            ],
-            "mode": "single"
-        }
+            },
+            # Step 3: Clear the input_text for Lock Code
+            {
+                "service": "input_text.set_value",
+                "data": {
+                    "value": ""
+                },
+                "target": {
+                    "entity_id": "{{ 'input_text.zha_lock_code_' + trigger.entity_id.split('_')[-1] }}"
+                }
+            }
+        ],
+        "mode": "single"
+    }
+    _LOGGER.info(f"Created automation: {clear_automation['alias']}")
 
-        await hass.services.async_call(automation_service, "reload", blocking=True)
-        _LOGGER.info(f"Created automation: {status_automation['alias']}")
+    # Create "Update Lock Code" automation for all slots
+    update_automation = {
+        "alias": "Zigbee Lock: Update Lock Code",
+        "trigger": update_triggers,
+        "action": [
+            {
+                "service": "zha.set_lock_user_code",
+                "data_template": {
+                    "code_slot": "{{ trigger.entity_id.split('_')[-1] | int }}",
+                    "user_code": "{{ states(f'input_text.zha_lock_code_' + trigger.entity_id.split('_')[-1]) }}"
+                },
+                "target": {
+                    "device_id": lock_device_id
+                }
+            }
+        ],
+        "mode": "single"
+    }
+    _LOGGER.info(f"Created automation: {update_automation['alias']}")
 
-async def remove_automations(hass, domain: str, slot_count: int):
-    """Remove the automations when the integration is removed."""
-    entity_registry = hass.helpers.entity_registry.async_get(hass)
-
-    for slot in range(1, slot_count + 1):
-        status_automation_id = f"automation.zigbee_lock_toggle_code_status_slot_{slot}"
-
-        _LOGGER.info(f"Removing automation: {status_automation_id}")
-        entity_registry.async_remove(status_automation_id)
-
-
-async def create_scripts(hass, domain: str, slot_count: int, lock_entity_id: str):
-    """Dynamically create scripts for updating lock codes."""
-    for slot in range(1, slot_count + 1):
-        script_id = f"{domain}_update_lock_code_slot_{slot}"
-        user_code_template = f"{{{{ states('input_text.{domain}_code_{slot}') }}}}"
-
-        _LOGGER.info(f"Creating script: {script_id}")
-
-        script = {
-            "alias": f"Update Lock Code Slot {slot}",
-            "sequence": [
-                {
-                    "service": "zha.set_lock_user_code",
-                    "data_template": {
-                        "code_slot": slot,
-                        "user_code": user_code_template,
+    # Create "Toggle Code Status" automation for all slots
+    status_automation = {
+        "alias": "Zigbee Lock: Toggle Code Status",
+        "trigger": toggle_triggers,
+        "action": [
+            {
+                "choose": [
+                    {
+                        "conditions": [
+                            {
+                                "condition": "template",
+                                "value_template": "{{ trigger.to_state.state == 'on' }}"
+                            }
+                        ],
+                        "sequence": [
+                            {
+                                "service": "zha.enable_lock_user_code",
+                                "data_template": {
+                                    "code_slot": "{{ trigger.entity_id.split('_')[-1] | int }}"
+                                },
+                                "target": {
+                                    "entity_id": f"lock.{lock_name}"
+                                }
+                            }
+                        ]
                     },
-                    "target": {
-                        "entity_id": lock_entity_id
+                    {
+                        "conditions": [
+                            {
+                                "condition": "template",
+                                "value_template": "{{ trigger.to_state.state == 'off' }}"
+                            }
+                        ],
+                        "sequence": [
+                            {
+                                "service": "zha.disable_lock_user_code",
+                                "data_template": {
+                                    "code_slot": "{{ trigger.entity_id.split('_')[-1] | int }}"
+                                },
+                                "target": {
+                                    "entity_id": f"lock.{lock_name}"
+                                }
+                            }
+                        ]
                     }
-                }
-            ]
-        }
+                ]
+            }
+        ],
+        "mode": "single"
+    }
+    _LOGGER.info(f"Created automation: {status_automation['alias']}")
 
-        # Create the script dynamically in Home Assistant
-        await hass.services.async_call(
-            "script",
-            "reload",  # This will reload the scripts after creation
-            blocking=True
-        )
-
-        # Logging for debugging purposes
-        _LOGGER.info(f"Script {script_id} has been created.")
+    # Reload automations after creation
+    await hass.services.async_call("automation", "reload", blocking=True)
+    _LOGGER.info("Automations reloaded after creation.")
 
 
-async def remove_scripts(hass, domain: str, slot_count: int):
-    """Remove the dynamically created scripts."""
+async def remove_lock_code_automations(hass, slot_count):
+    """Remove automations for managing lock codes."""
     for slot in range(1, slot_count + 1):
-        script_id = f"script.{domain}_update_lock_code_slot_{slot}"
-        _LOGGER.info(f"Removing script: {script_id}")
+        # Use the automation entity_id format to remove
+        entity_id = f"automation.zigbee_lock_manage_slot_{slot}"
+        await remove_entity(hass, entity_id)
 
-        await hass.services.async_call(
-            "script",
-            "reload",  # Reloading after removing the script
-            blocking=True
-        )
+
+async def remove_entity(hass, entity_id):
+    """Helper function to remove an automation."""
+    automation_service = "automation"
+    automation_reload = "reload"
+    _LOGGER.info(f"Removing automation: {entity_id}")
+
+    # Call the service to reload the automation after removal
+    await hass.services.async_call(automation_service, automation_reload, blocking=True)
