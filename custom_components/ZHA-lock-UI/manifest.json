@@ -1,15 +1,10 @@
 {
-  "domain": "zha_lock_ui",
-  "name": "ZHA Lock Manager",
-  "version": "0.0.1",
-  "config_flow": true,
-  "documentation": "https://github.com/Fiercefish1/ZHA-lock-UI",
-  "requirements": [],
-  "dependencies": [
-    "zha",
-    "input_text",
-    "input_boolean",
-    "lock"
-  ],
-  "codeowners": ["@Fiercefish1"]
-}
+    "domain": "zha_lock_manager",
+    "name": "Zigbee Lock Manager",
+    "version": "1.0",
+    "config_flow": true,
+    "requirements": [],
+    "dependencies": [],
+    "codeowners": []
+  }
+  
