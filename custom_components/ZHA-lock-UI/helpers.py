@@ -1,81 +1,83 @@
 import logging
+from homeassistant.helpers.entity_registry import async_get
 
 _LOGGER = logging.getLogger(__name__)
 
-async def create_input_text(hass, entity_id, name, min_value=0, max_value=100):
-    """Dynamically create an input_text entity."""
-    if not hass.states.get(entity_id):
-        _LOGGER.debug(f"Creating input_text {entity_id}")
-        await hass.services.async_call(
-            "input_text",
-            "create",
-            {
-                "name": name,
-                "entity_id": entity_id,
-                "min": min_value,
-                "max": max_value,
-                "pattern": ".*"  # You can adjust this pattern based on your needs
-            },
-            blocking=True
+async def create_lock_code_helpers(hass, slot_count, config_entry):
+    """Dynamically create lock code helpers based on the slot count."""
+    entity_registry = async_get(hass)
+
+    for slot in range(1, slot_count + 1):
+        # Create input_text for Lock User
+        await create_input_text(hass, entity_registry, config_entry, slot, "user", "mdi:account", "Lock User")
+
+        # Create input_text for Lock Code
+        await create_input_text(hass, entity_registry, config_entry, slot, "code", "mdi:dialpad", "Lock Code")
+
+        # Create input_boolean for Code Status
+        await create_input_boolean(hass, entity_registry, config_entry, slot, "status", "Code Status")
+
+        # Create input_button for Code Update
+        await create_input_button(hass, entity_registry, config_entry, slot, "update", "Update Code")
+
+        # Create input_button for Code Clear
+        await create_input_button(hass, entity_registry, config_entry, slot, "clear", "Clear Code")
+
+
+async def create_input_text(hass, entity_registry, config_entry, slot, name_type, icon, name_prefix):
+    """Helper function to create an input_text entity."""
+    unique_id = f"zha_lock_{name_type}_{slot}"
+    entity_id = f"input_text.zha_lock_{name_type}_{slot}"
+
+    if not entity_registry.async_get(entity_id):
+        entity_registry.async_get_or_create(
+            domain="input_text",
+            platform="custom_input_text",
+            unique_id=unique_id,
+            config_entry=config_entry
         )
 
-async def create_input_boolean(hass, entity_id, name):
-    """Dynamically create an input_boolean entity."""
-    if not hass.states.get(entity_id):
-        _LOGGER.debug(f"Creating input_boolean {entity_id}")
-        await hass.services.async_call(
-            "input_boolean",
-            "create",
-            {
-                "name": name,
-                "entity_id": entity_id,
-            },
-            blocking=True
+    # Set entity state and friendly name
+    hass.states.async_set(entity_id, '', {
+        'friendly_name': f'{name_prefix} {slot}',
+        'max': 25,
+        'icon': icon,
+        'mode': 'text'
+    })
+
+async def create_input_boolean(hass, entity_registry, config_entry, slot, name_type, name_prefix):
+    """Helper function to create an input_boolean entity."""
+    unique_id = f"zha_lock_{name_type}_{slot}"
+    entity_id = f"input_boolean.zha_lock_{name_type}_{slot}"
+
+    if not entity_registry.async_get(entity_id):
+        entity_registry.async_get_or_create(
+            domain="input_boolean",
+            platform="custom_input_boolean",
+            unique_id=unique_id,
+            config_entry=config_entry
         )
 
-async def create_helpers(hass, domain, slot_count):
-    """Dynamically create the required input_text and input_boolean helpers."""
-    for slot in range(1, slot_count + 1):
-        user_input_text = f"input_text.{domain}_user_{slot}"
-        code_input_text = f"input_text.{domain}_code_{slot}"
-        code_status_boolean = f"input_boolean.{domain}_code_status_{slot}"
+    # Set entity state and friendly name
+    hass.states.async_set(entity_id, '', {
+        'friendly_name': f'{name_prefix} {slot}',
+        'initial': False
+    })
 
-        _LOGGER.info(f"Creating helpers for slot {slot}: {user_input_text}, {code_input_text}, {code_status_boolean}")
+async def create_input_button(hass, entity_registry, config_entry, slot, name_type, name_prefix):
+    """Helper function to create an input_button entity."""
+    unique_id = f"zha_lock_{name_type}_{slot}"
+    entity_id = f"input_button.zha_lock_{name_type}_{slot}"
 
-        # Dynamically create input_text for the user name
-        await create_input_text(hass, user_input_text, f"User {slot}")
+    if not entity_registry.async_get(entity_id):
+        entity_registry.async_get_or_create(
+            domain="input_button",
+            platform="custom_input_button",
+            unique_id=unique_id,
+            config_entry=config_entry
+        )
 
-        # Dynamically create input_text for the code
-        await create_input_text(hass, code_input_text, f"Code {slot}", min_value=0, max_value=6)
-
-        # Dynamically create input_boolean for enabling/disabling the code slot
-        await create_input_boolean(hass, code_status_boolean, f"Code Status {slot}")
-
-async def remove_helpers(hass, domain, slot_count):
-    """Remove the dynamically created helpers."""
-    for slot in range(1, slot_count + 1):
-        user_input_text = f"input_text.{domain}_user_{slot}"
-        code_input_text = f"input_text.{domain}_code_{slot}"
-        code_status_boolean = f"input_boolean.{domain}_code_status_{slot}"
-
-        _LOGGER.info(f"Removing helpers for slot {slot}: {user_input_text}, {code_input_text}, {code_status_boolean}")
-
-        # There is no delete service, but we can reload them to remove
-        if hass.states.get(user_input_text):
-            await hass.services.async_call(
-                "input_text",
-                "reload",
-                blocking=True
-            )
-        if hass.states.get(code_input_text):
-            await hass.services.async_call(
-                "input_text",
-                "reload",
-                blocking=True
-            )
-        if hass.states.get(code_status_boolean):
-            await hass.services.async_call(
-                "input_boolean",
-                "reload",
-                blocking=True
-            )
+    # Set entity state and friendly name
+    hass.states.async_set(entity_id, '', {
+        'friendly_name': f'{name_prefix} {slot}'
+    })
