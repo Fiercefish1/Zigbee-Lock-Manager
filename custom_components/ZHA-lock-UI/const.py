@@ -1,1 +1,1 @@
-DOMAIN = "zha_lock_manager"
+DOMAIN = "zigbee_lock_manager"
