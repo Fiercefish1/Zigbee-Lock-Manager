@@ -1,135 +1,199 @@
 import logging
+from homeassistant.components.input_text import InputText
+from homeassistant.components.input_boolean import InputBoolean
+from homeassistant.components.input_button import InputButton
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_registry import async_get
 
 _LOGGER = logging.getLogger(__name__)
 
-async def create_lock_code_helpers(hass, slot_count, config_entry):
+async def create_lock_code_helpers(hass, slot_count, config_entry, async_add_entities=None):
     """Dynamically create lock code helpers based on the slot count."""
     entity_registry = async_get(hass)
 
     for slot in range(1, slot_count + 1):
-        # Create input_text for Lock User
-        await create_input_text(hass, entity_registry, config_entry, slot, "user", "mdi:account", "Lock User")
+        # Create the entities
+        user_input_text = LockUserInputText(config_entry, slot)
+        code_input_text = LockCodeInputText(config_entry, slot)
+        status_input_boolean = LockCodeStatusInputBoolean(config_entry, slot)
+        update_input_button = LockCodeUpdateInputButton(config_entry, slot)
+        clear_input_button = LockCodeClearInputButton(config_entry, slot)
 
-        # Create input_text for Lock Code
-        await create_input_text(hass, entity_registry, config_entry, slot, "code", "mdi:dialpad", "Lock Code")
+        # Manually suggest the object_id to avoid automatic domain prefixing
+        entity_registry.async_get_or_create(
+            domain="input_text",
+            platform="input_text",
+            unique_id=user_input_text.unique_id,
+            suggested_object_id=f"zha_lock_user_{slot}",  # Correct name
+            config_entry=config_entry
+        )
+        entity_registry.async_get_or_create(
+            domain="input_text",
+            platform="input_text",
+            unique_id=code_input_text.unique_id,
+            suggested_object_id=f"zha_lock_code_{slot}",  # Correct name
+            config_entry=config_entry
+        )
+        entity_registry.async_get_or_create(
+            domain="input_boolean",
+            platform="input_boolean",
+            unique_id=status_input_boolean.unique_id,
+            suggested_object_id=f"zha_lock_code_status_{slot}",  # Correct name
+            config_entry=config_entry
+        )
+        entity_registry.async_get_or_create(
+            domain="input_button",
+            platform="input_button",
+            unique_id=update_input_button.unique_id,
+            suggested_object_id=f"zha_lock_code_update_{slot}",  # Correct name
+            config_entry=config_entry
+        )
+        entity_registry.async_get_or_create(
+            domain="input_button",
+            platform="input_button",
+            unique_id=clear_input_button.unique_id,
+            suggested_object_id=f"zha_lock_code_clear_{slot}",  # Correct name
+            config_entry=config_entry
+        )
 
-        # Create input_boolean for Code Status
-        await create_input_boolean(hass, entity_registry, config_entry, slot, "status", "Code Status")
+        _LOGGER.info(f"Registered entities for slot {slot}")
 
-        # Create input_button for Code Update
-        await create_input_button(hass, entity_registry, config_entry, slot, "update", "Update Code")
+class LockUserInputText(InputText):
+    """Representation of a Lock User input_text."""
+    def __init__(self, config_entry, slot):
+        self._config_entry = config_entry
+        self._slot = slot
+        self._state = ''
+        self.entity_id = f"input_text.zha_lock_user_{slot}"
+        self._attr_unique_id = f"zha_lock_user_{slot}"
 
-        # Create input_button for Code Clear
-        await create_input_button(hass, entity_registry, config_entry, slot, "clear", "Clear Code")
+    @property
+    def name(self):
+        """Return the name of the entity."""
+        return f"Lock User {self._slot}"
 
+    @property
+    def state(self):
+        """Return the state of the entity."""
+        return self._state
 
-# Define the helper function for creating input_text
-async def create_input_text(hass, entity_registry, config_entry, slot, name_type, icon, name_prefix):
-    """Helper function to create an input_text entity."""
-    unique_id = f"zha_lock_{name_type}_{slot}"
-    entity_id = f"zha_lock_{name_type}_{slot}"
+    @property
+    def unique_id(self):
+        """Return the unique ID for the entity."""
+        return self._attr_unique_id
 
-    # Check if the entity already exists in the registry
-    existing_entity = entity_registry.async_get(entity_id)
-
-    # If an entity exists, and it might be a ghost, remove it
-    if existing_entity:
-        _LOGGER.info(f"Removing existing or ghost entity: {entity_id}")
-        entity_registry.async_remove(entity_id)
-
-    # Create the new entity after ensuring no ghost entities remain
-    entity_registry.async_get_or_create(
-        domain="input_text",
-        platform="input_text",
-        unique_id=unique_id,
-        config_entry=config_entry
-    )
-
-
-    # Set entity state and friendly name
-    hass.states.async_set(entity_id, '', {
-        'friendly_name': f'{name_prefix} {slot}',
-        'max': 25,
-        'icon': icon,
-        'mode': 'text'
-    })
-
-
-# Define the helper function for creating input_boolean
-async def create_input_boolean(hass, entity_registry, config_entry, slot, name_type, name_prefix):
-    """Helper function to create an input_boolean entity."""
-    unique_id = f"zha_lock_{name_type}_{slot}"
-    entity_id = f"zha_lock_{name_type}_{slot}"
-
-    # Check if the entity already exists in the registry
-    existing_entity = entity_registry.async_get(entity_id)
-
-    # If an entity exists, and it might be a ghost, remove it
-    if existing_entity:
-        _LOGGER.info(f"Removing existing or ghost entity: {entity_id}")
-        entity_registry.async_remove(entity_id)
-
-    # Create the new entity after ensuring no ghost entities remain
-    entity_registry.async_get_or_create(
-        domain="input_boolean",
-        platform="input_boolean",
-        unique_id=unique_id,
-        config_entry=config_entry
-    )
-
-    # Set entity state and friendly name
-    hass.states.async_set(entity_id, '', {
-        'friendly_name': f'{name_prefix} {slot}',
-        'initial': False
-    })
+    async def async_set_value(self, value):
+        """Set the value of the input_text."""
+        self._state = value
+        self.async_write_ha_state()
 
 
-# Define the helper function for creating input_button
-async def create_input_button(hass, entity_registry, config_entry, slot, name_type, name_prefix):
-    """Helper function to create an input_button entity."""
-    unique_id = f"zha_lock_{name_type}_{slot}"
-    entity_id = f"zha_lock_{name_type}_{slot}"
+class LockCodeInputText(InputText):
+    """Representation of a Lock Code input_text."""
+    def __init__(self, config_entry, slot):
+        self._config_entry = config_entry
+        self._slot = slot
+        self._state = ''
+        self.entity_id = f"input_text.zha_lock_code_{slot}"
+        self._attr_unique_id = f"zha_lock_code_{slot}"
 
-    # Check if the entity already exists in the registry
-    existing_entity = entity_registry.async_get(entity_id)
+    @property
+    def name(self):
+        """Return the name of the entity."""
+        return f"Lock Code {self._slot}"
 
-    # If an entity exists, and it might be a ghost, remove it
-    if existing_entity:
-        _LOGGER.info(f"Removing existing or ghost entity: {entity_id}")
-        entity_registry.async_remove(entity_id)
+    @property
+    def state(self):
+        """Return the state of the entity."""
+        return self._state
 
-    # Create the new entity after ensuring no ghost entities remain
-    entity_registry.async_get_or_create(
-        domain="input_button",
-        platform="input_button",
-        unique_id=unique_id,
-        config_entry=config_entry
-    )
+    @property
+    def unique_id(self):
+        """Return the unique ID for the entity."""
+        return self._attr_unique_id
 
-    # Set entity state and friendly name
-    hass.states.async_set(entity_id, '', {
-        'friendly_name': f'{name_prefix} {slot}'
-    })
+    async def async_set_value(self, value):
+        """Set the value of the input_text."""
+        self._state = value
+        self.async_write_ha_state()
+
+
+class LockCodeStatusInputBoolean(InputBoolean):
+    """Representation of a Lock Code Status input_boolean."""
+    def __init__(self, config_entry, slot):
+        self._config_entry = config_entry
+        self._slot = slot
+        self._state = False
+        self.entity_id = f"input_boolean.zha_lock_code_status_{slot}"
+        self._attr_unique_id = f"zha_lock_code_status_{slot}"
+
+    @property
+    def name(self):
+        """Return the name of the entity."""
+        return f"Code Status {self._slot}"
+
+    @property
+    def state(self):
+        """Return the state of the entity."""
+        return self._state
+
+    @property
+    def unique_id(self):
+        """Return the unique ID for the entity."""
+        return self._attr_unique_id
+
+    async def async_set_value(self, value):
+        """Set the value of the input_boolean."""
+        self._state = value
+        self.async_write_ha_state()
+
+
+class LockCodeUpdateInputButton(InputButton):
+    """Representation of a Lock Code Update input_button."""
+    def __init__(self, config_entry, slot):
+        self._config_entry = config_entry
+        self._slot = slot
+        self.entity_id = f"input_button.zha_lock_code_update_{slot}"
+        self._attr_unique_id = f"zha_lock_code_update_{slot}"
+
+    @property
+    def name(self):
+        """Return the name of the entity."""
+        return f"Update Code {self._slot}"
+
+    async def async_press(self):
+        """Handle the press of the input_button."""
+        _LOGGER.info(f"Lock code update button {self._slot} pressed")
+
+
+class LockCodeClearInputButton(InputButton):
+    """Representation of a Lock Code Clear input_button."""
+    def __init__(self, config_entry, slot):
+        self._config_entry = config_entry
+        self._slot = slot
+        self.entity_id = f"input_button.zha_lock_code_clear_{slot}"
+        self._attr_unique_id = f"zha_lock_code_clear_{slot}"
+
+    @property
+    def name(self):
+        """Return the name of the entity."""
+        return f"Clear Code {self._slot}"
+
+    async def async_press(self):
+        """Handle the press of the input_button."""
+        _LOGGER.info(f"Lock code clear button {self._slot} pressed")
+
 
 async def remove_lock_code_helpers(hass, slot_count, config_entry):
     """Remove lock code helpers."""
     entity_registry = async_get(hass)
 
     for slot in range(1, slot_count + 1):
-        # Remove input_text for Lock User
+        # Remove entities for Lock User, Lock Code, etc.
         await remove_entity(hass, entity_registry, f"input_text.zha_lock_user_{slot}")
-
-        # Remove input_text for Lock Code
         await remove_entity(hass, entity_registry, f"input_text.zha_lock_code_{slot}")
-
-        # Remove input_boolean for Code Status
         await remove_entity(hass, entity_registry, f"input_boolean.zha_lock_code_status_{slot}")
-
-        # Remove input_button for Code Update
         await remove_entity(hass, entity_registry, f"input_button.zha_lock_code_update_{slot}")
-
-        # Remove input_button for Code Clear
         await remove_entity(hass, entity_registry, f"input_button.zha_lock_code_clear_{slot}")
 
 
