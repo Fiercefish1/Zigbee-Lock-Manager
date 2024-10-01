@@ -1,6 +1,5 @@
 import voluptuous as vol
 from homeassistant import config_entries
-from homeassistant.components.lock import DOMAIN as LOCK_DOMAIN
 from .const import DOMAIN
 import logging
 
@@ -15,12 +14,22 @@ class LockCodeFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Handle the initial step."""
         errors = {}
 
+        # Fetch available lock entities
+        lock_entities = [entity.entity_id for entity in self.hass.states.async_all("lock")]
+
+        # Handle the case where no lock entities are available
+        if not lock_entities:
+            errors["base"] = "no_locks"
+            _LOGGER.warning("No locks found during config flow")
+            return self.async_show_form(
+                step_id="user",
+                errors=errors,
+                description_placeholders={"error": "No locks found in your Home Assistant instance."},
+            )
+
         if user_input is not None:
             _LOGGER.debug(f"User input: {user_input}")
             return self.async_create_entry(title="Zigbee Lock Manager", data=user_input)
-
-        # Fetch available lock entities
-        lock_entities = [entity.entity_id for entity in self.hass.states.async_all(LOCK_DOMAIN)]
 
         # Define the form schema
         schema = vol.Schema({
