@@ -30,8 +30,10 @@ Copy the `custom_components/zigbee_lock_manager` directory to your `custom_compo
 
 This installation creates helpers from YAML templates stored in /config/packages/zigbee_lock_manager.  You must have the following in your configuration in order for this to work. 
 
+```YAML
 homeassistant:
   packages: !include_dir_named packages
+```
 
 ## Configuration
 
