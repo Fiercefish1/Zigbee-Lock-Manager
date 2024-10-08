@@ -1,0 +1,10 @@
+{
+    "domain": "zigbee_lock_manager",
+    "name": "Zigbee Lock Manager",
+    "version": "0.1.0",
+    "config_flow": true,
+    "requirements": [],
+    "dependencies": [],
+    "codeowners": Fiercefish1
+  }
+  
