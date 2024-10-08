@@ -31,7 +31,6 @@ automation:
     trigger:
       - platform: state
         entity_id: input_boolean.{{ lock_name }}_lock_code_status_{{ slot }}
-        to: 'on'
     action:
       - choose:
           - conditions:
@@ -39,6 +38,15 @@ automation:
                 value_template: '{{ '{{ trigger.to_state.state == "on" }}' }}'
             sequence:
               - service: zha.enable_lock_user_code
+                target:
+                  entity_id: lock.{{ lock_name }}
+                data:
+                  code_slot: "{{ slot }}"
+          - conditions:
+              - condition: template
+                value_template: '{{ '{{ trigger.to_state.state == "off" }}' }}'
+            sequence:
+              - service: zha.disable_lock_user_code
                 target:
                   entity_id: lock.{{ lock_name }}
                 data:
