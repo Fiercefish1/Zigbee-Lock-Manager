@@ -10,6 +10,8 @@ This integration dynamically creates helpers and automations to manage codes and
 * Update code on lock
 * Clear code from lock
 
+![Alt Text](ZLM_UI.jpg)
+
 ## Installation
 
 The easiest way to install is through HACS. This integration is already included in the HACS default repositories.
