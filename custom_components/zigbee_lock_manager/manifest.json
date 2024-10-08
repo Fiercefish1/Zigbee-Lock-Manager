@@ -5,6 +5,6 @@
     "config_flow": true,
     "requirements": [],
     "dependencies": [],
-    "codeowners": Fiercefish1
+    "codeowners": ["Fiercefish1"]
   }
   
