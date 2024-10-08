@@ -2,7 +2,7 @@
 [![GitHub Release][releases-shield]][releases]
 [![hacs][hacsbadge]][hacs]
 
-This integration dynamically creates helpers and automations to manage codes and provides the YAML for a dashboard UI for ease of use. 
+This integration provides the YAML for a dashboard to manage lock codes on Zigbee keypad locks, and creates the helpers and automations behind the UI. 
 
 ## Features
 * Generates helers and dashboard cards for each code slot
