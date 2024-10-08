@@ -1,0 +1,5 @@
+title: 'Door Codes'
+views:
+  - path: default_view
+    title: '{{ lock_name }}'
+    cards:
