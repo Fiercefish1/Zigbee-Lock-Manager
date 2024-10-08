@@ -1,1 +1,17 @@
-
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: 'Code {{ slot }}'
+            entities:
+              - entity: input_text.{{ lock_name }}_lock_user_{{ slot }}
+                name: Name
+              - entity: input_text.{{ lock_name }}_lock_code_{{ slot }}
+                name: Code
+              - entity: input_boolean.{{ lock_name }}_lock_code_status_{{ slot }}
+                name: Code Status
+                state_color: 'true'
+                secondary_info: none
+              - entity: input_button.{{ lock_name }}_lock_code_update_{{ slot }}
+                name: Update code on lock
+              - entity: input_button.{{ lock_name }}_lock_code_clear_{{ slot }}
+                name: Clear code from lock
