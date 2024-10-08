@@ -8,7 +8,7 @@ _LOGGER = logging.getLogger(__name__)
 class LockCodeFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle the configuration flow for Zigbee Lock Manager."""
 
-    VERSION = 1
+    VERSION = 0.1.0
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
