@@ -29,9 +29,9 @@ homeassistant:
 
 ## Configuration
 
-At this time the integration is only designed to manage the codes for a single lock.  To manage codes for multiple ZHA locks, you can create multiple instances of this interation, but they won't share the same input helpers, they'll each have their own. 
+At this time the integration is only designed to manage the codes for a single lock.  To manage codes for multiple ZHA locks, you can create multiple instances of this integration, but they'll each have their own respsective input helpers. 
 
-*While your lock may support 100 or more lock codes, I recommend opting for 12-24 slots for optimal UI appearance and performance. The generated YAML was designed for Masonry layouts, and three cards fit nicely to a row.  For appearances, choose a number of slots divisible by three. 
+*While your lock may support 100 or more lock codes, it is recommended to choose 12-24 slots for optimal UI appearance and performance. The generated YAML was designed for Masonry layouts, and three cards fit nicely to a row.  For your dashboard OCD, choose a number of slots divisible by three. 
 
 Slots: `# of code slots you want to manage` <br>
 Lock: `entity_id of your ZHA keypad lock`
