@@ -8,6 +8,7 @@
     "issue_tracker" : "https://github.com/Fiercefish1/Zigbee-Lock-Manager/issues",
     "requirements": [],
     "dependencies": [],
-    "codeowners": ["@Fiercefish1"]
+    "codeowners": ["@Fiercefish1"],
+    "hacs": "integration"
   }
   
