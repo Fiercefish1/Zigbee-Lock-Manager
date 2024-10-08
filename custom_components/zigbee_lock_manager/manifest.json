@@ -3,6 +3,9 @@
     "name": "Zigbee Lock Manager",
     "version": "0.1.0",
     "config_flow": true,
+    "documentation": "https://github.com/Fiercefish1/Zigbee-Lock-Manager",
+    "iot_class": "calculated",
+    "issue_tracker" : "https://github.com/Fiercefish1/Zigbee-Lock-Manager/issues",
     "requirements": [],
     "dependencies": [],
     "codeowners": ["Fiercefish1"]
