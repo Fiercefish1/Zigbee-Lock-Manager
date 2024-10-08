@@ -40,9 +40,11 @@ Lock: `entity_id of your ZHA keypad lock`
 
 While not require, after install it's a good practice to reload YAML (Developer Tools > YAML > "ALL YAML CONFIGURATION") to ensure all changes are picked up and will be actionable. 
 
-## Dashboard creation:
-Copy the YAML from config/packages/zigbee_lock_manager/zigbee_lock_manager_dashboard
-Create a new dashboard, edit the raw config (three dots after enabling edit) and paste in the YAML from your clipboard. Done.
+## Dashboard creation
+Copy the YAML from:
+config/packages/zigbee_lock_manager/zigbee_lock_manager_dashboard
+Create a new dashboard, edit the raw config (three dots after enabling edit), and paste in the YAML from your clipboard.
+Done.
 
 
 [hacs]: https://hacs.xyz
