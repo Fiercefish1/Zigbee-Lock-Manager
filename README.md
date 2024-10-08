@@ -1,8 +1,8 @@
-# Home Assistant integration to Manage Codes on Zigbee Keypad Locks
+# Zigbee Lock Manager
 [![GitHub Release][releases-shield]][releases]
 [![hacs][hacsbadge]][hacs]
 
-This integration provides the YAML for a dashboard to manage lock codes on Zigbee keypad locks, and creates the helpers and automations behind the UI. 
+This Home Assistant integration provides dashboard for managing lock codes on Zigbee keypad locks.  Installation dynmically creates the helpers, automations, and dashboard YAML, based on the number of codes (slots) the user wants to manage.  
 
 ## Features
 * Generates helers and dashboard cards for each code slot
