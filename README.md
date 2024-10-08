@@ -6,6 +6,8 @@ This Home Assistant integration provides a dashboard for managing lock codes on 
 
 This integration was inspired by [KeyMaster](https://github.com/FutureTense/keymaster) for Z-Wave locks.  Maybe someday this can be updated to provide the same feature parity. 
 
+**Currently this only supports ZHA (Zigbee Home Automation) in Home Assistant.  It does not support Zigbee2MQTT at this time. 
+
 ## Features
 * Generates helers and dashboard cards for each code slot
 * Disable/Enable code slot
