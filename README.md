@@ -48,7 +48,9 @@ While not require, after install it's a good practice to reload YAML (Developer 
 
 ## Dashboard creation
 Copy the YAML from: <br>
-config/packages/zigbee_lock_manager/zigbee_lock_manager_dashboard <br><br>
+```YAML
+config/packages/zigbee_lock_manager/zigbee_lock_manager_dashboard
+```
 Create a new dashboard, edit the raw config (three dots after enabling edit), and paste in the YAML from your clipboard.
 Done.
 
