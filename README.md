@@ -16,25 +16,25 @@ This integration was inspired by [KeyMaster](https://github.com/FutureTense/keym
 
 ![Alt Text](ZLM_UI.jpg)
 
-## Installation
-
-The easiest way to install is through HACS; add this as a custom repository.<br>
-[![Add Integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=zigbee_lock_manager)
-
-1. (if the Add Integration button doesn't work for you) In Home Assistant, select HACS -> Integrations -> (three dots upper-right) > Add Custom Repositry https://github.com/Fiercefish1/Zigbee-Lock-Manager/
-2. Download and Install
-3. Restart Home Assistant
-4. Set up and configure the integration:
-
-   
-!!Important!!
-This installation creates helpers from YAML templates stored in /config/packages/zigbee_lock_manager.  
-You must have the following in your configuration.yaml file in order for this to work. 
-
+## Prerequisites
+1. A Zigbee lock connected with Zigbe Home Automation (ZHA) in Home Assistant
+2. Support for Packages directory enabled in your configuration.yaml
 ```YAML
 homeassistant:
   packages: !include_dir_named packages
 ```
+
+## Installation
+
+The easiest way to install is through HACS by adding this as a custom repository.<br>
+
+1. In Home Assistant, select HACS -> Integrations -> (three dots upper-right) > Add Custom Repositry https://github.com/Fiercefish1/Zigbee-Lock-Manager/
+2. Find Zigbee Lock Manager in HACS
+3. Download the latest version
+4. Restart Home Assistant
+5. Set up and configure the integration <br>
+[![Add Integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=zigbee_lock_manager)
+
 
 ## Manual Installation
 
