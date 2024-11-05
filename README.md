@@ -2,7 +2,7 @@
 [![GitHub Release][releases-shield]][releases]
 [![hacs][hacsbadge]][hacs]
 
-A Home Assistant integration to provide a dashboard for managing lock codes on Zigbee keypad locks.  Installing dynmically creates the helpers, automations, and dashboard YAML, based on the number of codes (slots) the user wants to manage.  
+A Home Assistant integration to provide a dashboard for managing lock codes on Zigbee keypad locks.  Installing dynamically creates the helpers, automations, and dashboard YAML, based on the number of codes (slots) the user wants to manage.  
 
 This integration was inspired by [KeyMaster](https://github.com/FutureTense/keymaster) for Z-Wave locks.  
 
