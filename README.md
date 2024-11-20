@@ -8,7 +8,7 @@ This integration was inspired by [KeyMaster](https://github.com/FutureTense/keym
 
 **Currently this only supports ZHA (Zigbee Home Automation) in Home Assistant.  It does not support Zigbee2MQTT at this time. <br>
 
-** **Test your added codes** - A limitation with Zigbee locks (and a key reason why Keymaster doesn't support them) is that they [don't universally support commands to retrieve codes](https://community.home-assistant.io/t/zha-yale-yrd210-getting-unsup-cluster-command-when-calling-get-pin-code/498428) from the lock. Therefore it's not possible to query the lock to confirm the code was successfully stored in the desired slot  When setting codes with ZHA locks, as with this integration, you should test the codes to ensure they were successfully stored on the lock. 
+** **Test your added codes** - A limitation with Zigbee locks (and a key reason why Keymaster doesn't support them) is that they [don't universally support commands to retrieve codes](https://community.home-assistant.io/t/zha-yale-yrd210-getting-unsup-cluster-command-when-calling-get-pin-code/498428) from the lock. Therefore it's not possible to query the lock to confirm the code was successfully stored in the desired slot.  When setting codes with ZHA locks, as with this integration, you should test the codes to ensure they were successfully stored on the lock. 
 
 ## Features
 * Generates helpers and dashboard cards for each code slot
