@@ -1,7 +1,7 @@
 {
     "domain": "zigbee_lock_manager",
     "name": "Zigbee Lock Manager",
-    "version": "0.0.1",
+    "version": "v0.0.12-dev",
     "config_flow": true,
     "documentation": "https://github.com/Fiercefish1/Zigbee-Lock-Manager",
     "iot_class": "local_push",
