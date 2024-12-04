@@ -72,10 +72,11 @@ async def create_helpers_and_automations(hass: HomeAssistant, slot_count: int, l
         _LOGGER.info(f"Created helpers and automations for slot {slot} in {yaml_file_path}")
 
     # Step to reload automations and helpers, but only if services are available
-    if hass.services.has_service("automation", "reload"):
-        await hass.services.async_call("automation", "reload")
-    else:
-        _LOGGER.warning("automation.reload service not available at this time")
+        # Commenting out automation.reload call - will remove at a later release if no other problems arise from removal. 
+            #if hass.services.has_service("automation", "reload"):
+            #    await hass.services.async_call("automation", "reload")
+            #else:
+            #    _LOGGER.warning("automation.reload service not available at this time")
 
     if hass.services.has_service("input_boolean", "reload"):
         await hass.services.async_call("input_boolean", "reload")
