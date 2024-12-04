@@ -19,16 +19,21 @@ async def async_setup_entry(hass, entry):
     # Step 1: Create the YAML-based helpers and automations
     await create_helpers_and_automations(hass, slot_count, lock_name, entry)
 
-    # Step 2: Reload automations and input helpers
-    await hass.services.async_call("automation", "reload")
-    await hass.services.async_call("input_boolean", "reload")
-    await hass.services.async_call("input_text", "reload")
-    await hass.services.async_call("input_button", "reload")
+    # Step2: Register a listener for `homeassistant_started` to reload automations
+    async def reload_services(event):
+        """Reload automations and input helpers after Home Assistant starts."""
+        _LOGGER.debug("Reloading automations and helpers.")
+        await hass.services.async_call("automation", "reload")
+        await hass.services.async_call("input_boolean", "reload")
+        await hass.services.async_call("input_text", "reload")
+        await hass.services.async_call("input_button", "reload")
 
-    # Step 3: Introduce a small delay to ensure entities are fully loaded
-    await asyncio.sleep(2)  # Adjust the sleep duration if necessary
+        # Introduce a small delay to ensure entities are fully loaded
+        await asyncio.sleep(2)  # Adjust the sleep duration if necessary
 
-    # Step 4: Register a device for the lock manager
+    hass.bus.async_listen_once("homeassistant_started", reload_services)
+
+    # Step 3: Register a device for the lock manager
     device_registry = dr.async_get(hass)
     device = device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
@@ -39,11 +44,11 @@ async def async_setup_entry(hass, entry):
         sw_version="1.0",
     )
 
-    # Step 5: Link YAML-created helpers to the device
+    # Step 4: Link YAML-created helpers to the device
     for slot in range(1, slot_count + 1):
         await link_helpers_to_device(hass, entry, lock_name, slot, device)
 
-    # Step 6: Create the dashboard YAML file
+    # Step 5: Create the dashboard YAML file
     await create_dashboard_yaml(hass, slot_count, lock_name)
 
     _LOGGER.info("Zigbee Lock Manager setup complete")
