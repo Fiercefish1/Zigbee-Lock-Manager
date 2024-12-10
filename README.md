@@ -34,8 +34,7 @@ The easiest way to install is through HACS by adding this as a custom repository
 2. Find Zigbee Lock Manager in HACS
 3. Download the latest version
 4. Restart Home Assistant
-5. Set up and configure the integration <br>
-[![Add Integration](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=zigbee_lock_manager)
+5. Set up and configure the integration 
 
 
 ## Manual Installation
