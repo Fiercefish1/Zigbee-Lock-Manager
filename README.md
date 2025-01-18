@@ -4,6 +4,8 @@
 
 A Home Assistant integration to provide a dashboard for managing lock codes on Zigbee keypad locks.  Installing dynamically creates the helpers, automations, and dashboard YAML, based on the number of codes (slots) the user wants to manage.  
 
+HA forum thread for discussion here: [Zigbee Lock Manager](https://community.home-assistant.io/t/zigbee-lock-manager/780353)
+
 This integration was inspired by [KeyMaster](https://github.com/FutureTense/keymaster) for Z-Wave locks.  
 
 **Currently this only supports ZHA (Zigbee Home Automation) in Home Assistant.  It does not support Zigbee2MQTT at this time. <br>
